@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using GuitarStuff.Models;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Mvc;  //for ApiVersion
 
 namespace GuitarStuff
 {
@@ -25,6 +26,12 @@ namespace GuitarStuff
             services.AddDbContext<GuitarStuffContext>(opt =>
                 opt.UseMySql(Configuration["ConnectionStrings:DefaultConnection"], ServerVersion.AutoDetect(Configuration["ConnectionStrings:DefaultConnection"])));
             services.AddControllers();
+            services.AddApiVersioning(options => {
+            options.ReportApiVersions = true;
+            options.AssumeDefaultVersionWhenUnspecified = true;
+            options.DefaultApiVersion = new ApiVersion(1, 0);
+            });
+            
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
@@ -56,7 +63,7 @@ namespace GuitarStuff
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"); //sets swagger as the index route
+                    options.SwaggerEndpoint("/swagger/V1/swagger.json", "V1"); //sets swagger as the index route
                     options.RoutePrefix = string.Empty;
                 });
             }

@@ -7,13 +7,14 @@ using System.Linq;
 
 namespace GuitarStuff.Controllers
 {
+	[ApiVersion("1.0")]
 	[Route("api/[controller]")]
 	[ApiController]
-	public class GuitarsController : ControllerBase
+	public class GuitarsV1Controller : ControllerBase
 	{
 		private readonly GuitarStuffContext _db;
 
-		public GuitarsController(GuitarStuffContext db)
+		public GuitarsV1Controller(GuitarStuffContext db)
 		{
 			_db = db;
 		}
@@ -110,6 +111,36 @@ namespace GuitarStuff.Controllers
 		private bool GuitarExists(int id)
 		{
 			return _db.Guitars.Any(e=> e.GuitarId == id);
+		}
+	}
+	[ApiVersion("2.0")]
+	[Route("api/[controller]")]
+	[ApiController]
+	public class GuitarsV2Controller : ControllerBase
+	{
+		private readonly GuitarStuffContext _db;
+
+		public GuitarsV2Controller(GuitarStuffContext db)
+		{
+			_db = db;
+		}
+
+		// GET api/guitars
+		[HttpGet]
+		public async Task<ActionResult<IEnumerable<Guitar>>> Get(string guitarType, string guitarPlayersAssociated)
+		{
+			var query = _db.Guitars.AsQueryable();
+
+			if (guitarType != null)
+			{
+				query = query.Where(e => e.GuitarType == guitarType);
+			}
+
+			if (guitarPlayersAssociated != null)
+			{
+				query = query.Where(e => e.GuitarPlayersAssociated == guitarPlayersAssociated);
+			}
+			return await query.ToListAsync();
 		}
 	}
 }
