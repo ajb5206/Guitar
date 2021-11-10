@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using GuitarStuff.Models;
+using Microsoft.OpenApi.Models;
 
 namespace GuitarStuff
 {
@@ -24,7 +25,26 @@ namespace GuitarStuff
             services.AddDbContext<GuitarStuffContext>(opt =>
                 opt.UseMySql(Configuration["ConnectionStrings:DefaultConnection"], ServerVersion.AutoDetect(Configuration["ConnectionStrings:DefaultConnection"])));
             services.AddControllers();
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "GuitarStuff API",
+                    Description = "An ASP.NET Core Web API for managing GuitarStuff items",
+                    // TermsOfService = new System.Uri("https://example.com/terms"),
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Alex Bertotto",
+                        // Url = new Uri("https://example.com/contact")
+                    },
+                    // License = new OpenApiLicense
+                    // {
+                    //     Name = "Example License",
+                    //     Url = new Uri("https://example.com/license")
+                    // }
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -34,7 +54,11 @@ namespace GuitarStuff
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"); //sets swagger as the index route
+                    options.RoutePrefix = string.Empty;
+                });
             }
 
             // app.UseHttpsRedirection();
